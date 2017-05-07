@@ -1,5 +1,5 @@
 {
-    "name": "lotofbadcode/lib/databackup/mysql",
+    "name": "PHP LIBRARY",
     "description": "mysql backup and recovery",
     "type": "library",
     "keywords": [
