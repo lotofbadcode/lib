@@ -1,0 +1,42 @@
+{
+    "name": "lotofbadcode/lib/databackup/mysql",
+    "description": "mysql backup and recovery",
+    "type": "library",
+    "keywords": [
+        "mysql",
+        "backup",
+        "recovery"
+    ],
+    "authors": [
+        {
+            "name": "代码庸医",
+            "email": "liu21st@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.4.0",
+        "topthink/framework": "*",
+        "topthink/think-captcha": "^1.0",
+        "ircmaxell/random-lib": "^1.1",
+        "symfony/var-dumper": "^3.1",
+        "bluem/tree": "1.5.3",
+        "topthink/think-image": "^1.0",
+        "ezyang/htmlpurifier": "^4.8",
+        "phelium/mysql-backup": "dev-master",
+        "alc/csv": "dev-master",
+        "popy-dev/php-csv": "dev-master",
+        "keboola/csv": "^1.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "yi700\\": "vendor/yi700/"  
+        }
+    },
+    "extra": {
+        "think-path": "thinkphp"
+    },
+    "minimum-stability": "dev",
+    "config": {
+        "preferred-install": "dist"
+    }
+}

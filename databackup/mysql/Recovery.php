@@ -2,6 +2,9 @@
 
 namespace lotofbadcode\lib\databackup\mysql;
 
+use PDO;
+use Exception;
+
 if (!session_id())
 {
     session_start();

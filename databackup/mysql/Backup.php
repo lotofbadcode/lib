@@ -2,6 +2,9 @@
 
 namespace lotofbadcode\lib\databackup\mysql;
 
+use PDO;
+use Exception;
+
 if (!session_id())
 {
     session_start();
@@ -96,13 +99,13 @@ class Backup
      * @param string $password 密码
      * @param string $code 编码
      */
-    public function __construct($server, $dbname, $username, $password,$code)
+    public function __construct($server, $dbname, $username, $password, $code)
     {
         $this->_server = $server;
         $this->_dbname = $dbname;
         $this->_username = $username;
         $this->_password = $password;
-        $this->_pdo = new PDO('mysql:host=' . $this->_server . ';dbname=' . $this->_dbname, $this->_username, $this->_password, [PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES'".$code."';"]);
+        $this->_pdo = new PDO('mysql:host=' . $this->_server . ';dbname=' . $this->_dbname, $this->_username, $this->_password, [PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES'" . $code . "';"]);
     }
 
     public function setvolsize($size)
