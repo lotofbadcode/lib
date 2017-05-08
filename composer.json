@@ -1,6 +1,7 @@
 {
     "name": "lotofbadcode/phpextend",
     "description": "php library",
+	"license": "Apache-2.0",
     "type": "library",
     "keywords": [
         "php",
