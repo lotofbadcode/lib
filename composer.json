@@ -1,5 +1,5 @@
 {
-    "name": "lotofbadcode/lib",
+    "name": "lotofbadcode/php_extend_lib",
     "description": "mysql backup and recovery",
     "type": "library",
     "keywords": [
