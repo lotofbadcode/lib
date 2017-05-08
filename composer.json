@@ -1,11 +1,10 @@
 {
     "name": "lotofbadcode/phpextend",
-    "description": "mysql backup and recovery",
+    "description": "php library",
     "type": "library",
     "keywords": [
-        "mysql",
-        "backup",
-        "recovery"
+        "php",
+        "library"
     ],
     "authors": [
         {
