@@ -18,7 +18,7 @@
     },
     "autoload": {
         "psr-4": {
-            "lotofbadcode\\phpextend\\": "lotofbadcode/phpextend/"  
+            "lotofbadcode\\phpextend\\": ""  
         }
     }
 }
