@@ -99,7 +99,7 @@ class Backup
      * @param string $password 密码
      * @param string $code 编码
      */
-    public function __construct($server, $dbname, $username, $password, $code)
+    public function __construct($server, $dbname, $username, $password, $code='utf8')
     {
         $this->_server = $server;
         $this->_dbname = $dbname;
