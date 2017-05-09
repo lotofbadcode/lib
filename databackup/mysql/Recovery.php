@@ -1,6 +1,6 @@
 <?php
 
-namespace lotofbadcode\lib\databackup\mysql;
+namespace lotofbadcode\phpextend\databackup\mysql;
 
 use PDO;
 use Exception;
