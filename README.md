@@ -5,6 +5,8 @@
 
 是mysql数据库备份恢复的类库 **支持AJAX 支持进度条 支持文件分卷**
 
+demo地址： https://github.com/lotofbadcode/phpextenddemo
+
 使用方法：
 a.备份 
 
@@ -28,6 +30,10 @@ $result = $backup->setbackdir($backupdir)
         ->setvolsize(0.2) //分卷大小
         ->ajaxbackup();
   ```
+  ![](https://github.com/lotofbadcode/phpextenddemo/blob/master/mysqlbackup/backup.gif)
+   
+
+
 b.恢复 
 
   不使用AJAX
@@ -52,3 +58,4 @@ $result = $recovery->setSqlfiledir(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'ba
 
 echo json_encode($result);
   ```
+    ![](https://github.com/lotofbadcode/phpextenddemo/blob/master/mysqlbackup/recovery.gif)
