@@ -3,10 +3,12 @@
 
 **1.lotofbadcode\phpextend\databackup\mysql**
 
-是mysql数据库备份恢复的类库 支持AJAX 支持进度条
+是mysql数据库备份恢复的类库 **支持AJAX 支持进度条 支持文件分卷**
 
 使用方法：
-1.备份 不使用AJAX
+a.备份 
+
+  不使用AJAX
   ```php (type)
     <?php
 $backup = new \lotofbadcode\phpextend\databackup\mysql\Backup('127.0.0.1:3306', 'test', 'root', '');
@@ -17,7 +19,18 @@ do
     $result = $backup->backup();
 } while ($result['totalpercentage'] < 100);
   ```
-2.恢复 不使用AJAX
+  
+  使用AJAX
+  
+  ```php (type)
+    $backup = new \lotofbadcode\phpextend\databackup\mysql\Backup('127.0.0.1:3306', 'test', 'root', '');
+$result = $backup->setbackdir($backupdir)
+        ->setvolsize(0.2) //分卷大小
+        ->ajaxbackup();
+  ```
+b.恢复 
+
+  不使用AJAX
    ```php (type)
     <?php
 
@@ -29,4 +42,13 @@ do
 
 } while ($result['totalpercentage'] < 100);
 
+  ```
+  使用AJAX
+   ```php (type)
+    <?php
+$recovery = new \lotofbadcode\phpextend\databackup\mysql\Recovery('127.0.0.1:3306', 'test', 'root', '');
+$result = $recovery->setSqlfiledir(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'backup')
+        ->ajaxrecovery();
+
+echo json_encode($result);
   ```
