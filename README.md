@@ -58,4 +58,4 @@ $result = $recovery->setSqlfiledir(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'ba
 
 echo json_encode($result);
   ```
-    ![](https://github.com/lotofbadcode/phpextenddemo/blob/master/mysqlbackup/recovery.gif)
+![](https://github.com/lotofbadcode/phpextenddemo/blob/master/mysqlbackup/recovery.gif)
