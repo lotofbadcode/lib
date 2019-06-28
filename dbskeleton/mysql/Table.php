@@ -1,7 +1,11 @@
 <?php
+
 namespace lotofbadcode\phpextend\dbskeleton\mysql;
 
-class CreateTable
+use PDO;
+use Exception;
+
+class Table
 {
     /**
      * 表名
@@ -31,9 +35,31 @@ class CreateTable
      */
     private $_comment = '';
 
+    /**
+     * 数据库连接对象
+     * @var PDO
+     */
+    private $_connection;
+
+    public function __construct($connection)
+    {
+        $this->_connection = $connection;
+    }
     public function create()
     {
-        $sql = "CREATE TABLE `" . $this->_tablename . "`  ENGINE=" . $this->_engine . " DEFAULT CHARSET=" . $this->_charset . " ROW_FORMAT=COMPACT COMMENT='" . $this->_comment . "';";
+        try {
+            $sql = "CREATE TABLE `:tablename`  ENGINE=:engine DEFAULT CHARSET=:charset ROW_FORMAT=COMPACT COMMENT=':comment';";
+            $stmt = $this->_connection->prepare($sql);
+            $stmt->execute([
+                'tablename' => $this->_tablename,
+                'engine' => $this->_engine,
+                'charset' => $this->_charset,
+                'comment' => $this->_comment
+            ]);
+            return $stmt->rowCount();
+        } catch (Exception $ex) {
+            return false;
+        }
     }
 
 
