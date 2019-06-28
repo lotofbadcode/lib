@@ -5,7 +5,7 @@ namespace lotofbadcode\phpextend\dbskeleton\mysql;
 use PDO;
 use Exception;
 
-class Table
+class Skeleton
 {
     /**
      * 表名
@@ -35,6 +35,8 @@ class Table
      */
     private $_comment = '';
 
+
+    private $_columns = [];
     /**
      * 数据库连接对象
      * @var PDO
@@ -45,22 +47,32 @@ class Table
     {
         $this->_connection = $connection;
     }
-    public function create()
+    public function createTable()
     {
         try {
-            $sql = "CREATE TABLE `:tablename`  ENGINE=:engine DEFAULT CHARSET=:charset ROW_FORMAT=COMPACT COMMENT=':comment';";
+            if (!$this->_columns) {
+                throw new Exception('字段不能为空');
+            }
+            $columnssql = ' ( ';
+            foreach ($this->_columns as $_columns) {
+                $columnssql .= $_columns->Generate();
+            }
+            $columnssql .= ' ) ';
+            $sql = "CREATE TABLE `:tablename` :columnssql  ENGINE=:engine DEFAULT CHARSET=:charset ROW_FORMAT=COMPACT COMMENT=':comment';";
             $stmt = $this->_connection->prepare($sql);
             $stmt->execute([
                 'tablename' => $this->_tablename,
                 'engine' => $this->_engine,
                 'charset' => $this->_charset,
-                'comment' => $this->_comment
+                'comment' => $this->_comment,
+                'columnssql' => $columnssql
             ]);
             return $stmt->rowCount();
         } catch (Exception $ex) {
             return false;
         }
     }
+
 
 
     /**
@@ -107,6 +119,12 @@ class Table
     public function setComment($comment)
     {
         $this->_comment = $comment;
+        return $this;
+    }
+
+    public function setColumn($columns)
+    {
+        $this->_columns = $columns;
         return $this;
     }
 }
