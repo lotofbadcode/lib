@@ -4,8 +4,9 @@ namespace lotofbadcode\phpextend\dbskeleton\mysql;
 
 use PDO;
 use Exception;
+use lotofbadcode\phpextend\dbskeleton\ISkeleton;
 
-class Skeleton
+class Skeleton implements ISkeleton
 {
     /**
      * 表名
@@ -47,6 +48,10 @@ class Skeleton
     {
         $this->_connection = $connection;
     }
+
+    /**
+     * 创建表
+     */
     public function createTable()
     {
         try {
@@ -58,22 +63,22 @@ class Skeleton
                 $columnssql .= $_columns->Generate();
             }
             $columnssql .= ' ) ';
-            $sql = "CREATE TABLE `:tablename` :columnssql  ENGINE=:engine DEFAULT CHARSET=:charset ROW_FORMAT=COMPACT COMMENT=':comment';";
+            $sql = "CREATE TABLE `" . $this->_tablename . "` " . $columnssql . "  ENGINE=" . $this->_engine . " DEFAULT CHARSET=" . $this->_charset . " ROW_FORMAT=COMPACT COMMENT='" . $this->_comment . "';";
             $stmt = $this->_connection->prepare($sql);
-            $stmt->execute([
-                'tablename' => $this->_tablename,
-                'engine' => $this->_engine,
-                'charset' => $this->_charset,
-                'comment' => $this->_comment,
-                'columnssql' => $columnssql
-            ]);
-            return $stmt->rowCount();
+            $stmt->execute();
         } catch (Exception $ex) {
-            return false;
+            throw new Exception($ex->getMessage());
         }
     }
 
+    public function dropTable()
+    {
+        try { 
 
+        } catch (Exception $ex) {
+            throw new Exception($ex->getMessage());
+        }
+    }
 
     /**
      * 设置表名

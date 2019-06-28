@@ -49,13 +49,13 @@ class GenerateColumn
 
     public function setName($name)
     {
-        $this->_name;
+        $this->_name=$name;
         return $this;
     }
 
     public function setType($type)
     {
-        $this->_type;
+        $this->_type=$type;
         return $this;
     }
 
