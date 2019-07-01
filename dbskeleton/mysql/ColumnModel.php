@@ -2,10 +2,12 @@
 
 namespace lotofbadcode\phpextend\dbskeleton\mysql;
 
+use ArrayAccess;
+
 /**
  * 字段生成
  */
-class GenerateColumn
+class ColumnModel implements ArrayAccess
 {
 
     /**
@@ -49,13 +51,13 @@ class GenerateColumn
 
     public function setName($name)
     {
-        $this->_name=$name;
+        $this->_name = $name;
         return $this;
     }
 
     public function setType($type)
     {
-        $this->_type=$type;
+        $this->_type = $type;
         return $this;
     }
 
@@ -118,5 +120,25 @@ class GenerateColumn
             $columnsql .= ' PRIMARY KEY (`' . $this->_name . '`) ';
         }
         return $columnsql;
+    }
+
+    public function offsetExists($offset)
+    {
+        parent::offsetExists($offset);
+    }
+
+    public function offsetGet($offset)
+    {
+        parent::offsetGet($offset);
+    }
+
+    public function offsetSet($offset, $value)
+    {
+        parent::offsetSet($offset);
+    }
+
+    public function offsetUnset($offset)
+    {
+        parent::offsetUnset($offset);
     }
 }
