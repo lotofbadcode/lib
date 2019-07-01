@@ -10,18 +10,14 @@ class Factory
 
     public static function instance($scheme, $server, $dbname, $username, $password, $code = 'utf8')
     {
-        if (self::$instance[$scheme] == null) {
+        $args = md5(implode('_', func_get_args()));
+        if (self::$instance[$args] == null) {
             switch ($scheme) {
                 case 'mysql':
-                    self::$instance[$scheme] = new PDO($scheme . ':host=' . $server . ';dbname=' . $dbname, $username, $password, [PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES'" . $code . "';"]);
+                    $pdo =  new PDO($scheme . ':host=' . $server . ';dbname=' . $dbname, $username, $password, [PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES'" . $code . "';"]);
+                    self::$instance[$args] = new MysqlSkeleton($pdo);
             }
-        } else {
-            self::$instance[$scheme];
         }
-
-        switch ($scheme) {
-            case 'mysql':
-                return new MysqlSkeleton(self::$instance[$scheme]);
-        }
+        return self::$instance[$args];
     }
 }
