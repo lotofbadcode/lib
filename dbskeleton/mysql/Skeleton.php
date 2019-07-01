@@ -26,8 +26,8 @@ class Skeleton implements ISkeleton
     public function createTable(TableModel $tableModel,  array $columnModels)
     {
         try {
-            if (!$this->_columns) {
-                throw new Exception('字段不能为空');
+            if (count($columnModels) == 0) {
+                throw new Exception('创建表时，必须包含一个列');
             }
             $columnssql = ' ( ';
             foreach ($columnModels as $columnModel) {
@@ -42,10 +42,35 @@ class Skeleton implements ISkeleton
         }
     }
 
+    /**
+     * 修改表
+     */
+    public function alterTable()
+    { }
+
+    /**
+     * 删除表
+     */
     public function dropTable()
+    { }
+
+    /**
+     * 添加字段
+     */
+    public function addColumn()
+    { }
+
+    /**
+     * 修改字段
+     */
+    public function changeColumn()
+    { }
+
+    /**
+     * 删除字段
+     */
+    public function dropColumn()
     {
-        try { } catch (Exception $ex) {
-            throw new Exception($ex->getMessage());
-        }
+        throw new Exception('123');
     }
 }

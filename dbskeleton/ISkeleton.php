@@ -6,8 +6,10 @@ interface ISkeleton
 {
     /**
      * 创建表
+     * @param $tableModel TableModel
+     * @param $columnModels
      */
-    public function createTable();
+    public function createTable($tableModel,  array $columnModels);
 
     /**
      * 修改表

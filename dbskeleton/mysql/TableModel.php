@@ -23,7 +23,7 @@ class TableModel
      *
      * @var string
      */
-    public $harset = 'utf8mb4';
+    public $charset = 'utf8mb4';
 
     /**
      * 备注
@@ -36,7 +36,7 @@ class TableModel
      * 设置表名
      *
      * @param string $tablename
-     * @return this
+     * @return $this
      */
     public function setTablename($tablename)
     {
@@ -47,7 +47,7 @@ class TableModel
     /**
      * 设置引擎
      *
-     * @return this
+     * @return $this
      */
     public function setEngine($engine)
     {
@@ -59,7 +59,7 @@ class TableModel
      * 设置编码
      *
      * @param string $charset
-     * @return this
+     * @return $this
      */
     public function setCharset($charset)
     {
@@ -71,7 +71,7 @@ class TableModel
      * 设置备注
      *
      * @param string $comment
-     * @return this
+     * @return $this
      */
     public function setComment($comment)
     {
