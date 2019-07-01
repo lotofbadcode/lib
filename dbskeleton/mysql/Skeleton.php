@@ -23,15 +23,15 @@ class Skeleton implements ISkeleton
     /**
      * 创建表
      */
-    public function createTable(TableModel $tableModel,  ColumnModel $columnModel)
+    public function createTable(TableModel $tableModel,  array $columnModels)
     {
         try {
             if (!$this->_columns) {
                 throw new Exception('字段不能为空');
             }
             $columnssql = ' ( ';
-            foreach ($this->_columns as $_columns) {
-                $columnssql .= $_columns->Generate();
+            foreach ($columnModels as $columnModel) {
+                $columnssql .= $columnModel->Generate();
             }
             $columnssql .= ' ) ';
             $sql = "CREATE TABLE `" . $tableModel->tablename . "` " . $columnssql . "  ENGINE=" . $tableModel->engine . " DEFAULT CHARSET=" . $tableModel->charset . " ROW_FORMAT=COMPACT COMMENT='" . $tableModel->comment . "';";

@@ -7,7 +7,7 @@ use ArrayAccess;
 /**
  * 字段生成
  */
-class ColumnModel implements ArrayAccess
+class ColumnModel
 {
 
     /**
@@ -122,23 +122,4 @@ class ColumnModel implements ArrayAccess
         return $columnsql;
     }
 
-    public function offsetExists($offset)
-    {
-        parent::offsetExists($offset);
-    }
-
-    public function offsetGet($offset)
-    {
-        parent::offsetGet($offset);
-    }
-
-    public function offsetSet($offset, $value)
-    {
-        parent::offsetSet($offset);
-    }
-
-    public function offsetUnset($offset)
-    {
-        parent::offsetUnset($offset);
-    }
 }
