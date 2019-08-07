@@ -5,37 +5,12 @@ namespace lotofbadcode\phpextend\databackup\mysql;
 use PDO;
 use Exception;
 
-if (!session_id())
-{
+if (!session_id()) {
     session_start();
 }
 
 class Backup
 {
-
-    /**
-     * 服务器
-     * @var string
-     */
-    private $_server = '127.0.0.1';
-
-    /**
-     * 数据库
-     * @var string
-     */
-    private $_dbname = '';
-
-    /**
-     * 用户名
-     * @var string
-     */
-    private $_username = '';
-
-    /**
-     * 密码
-     * @var string
-     */
-    private $_password = '';
 
     /**
      * 分卷大小的 默认2M
@@ -99,13 +74,9 @@ class Backup
      * @param string $password 密码
      * @param string $code 编码
      */
-    public function __construct($server, $dbname, $username, $password, $code='utf8')
+    public function __construct($pdo)
     {
-        $this->_server = $server;
-        $this->_dbname = $dbname;
-        $this->_username = $username;
-        $this->_password = $password;
-        $this->_pdo = new PDO('mysql:host=' . $this->_server . ';dbname=' . $this->_dbname, $this->_username, $this->_password, [PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES'" . $code . "';"]);
+        $this->_pdo = $pdo;
     }
 
     public function setvolsize($size)
@@ -122,12 +93,10 @@ class Backup
 
     public function gettablelist()
     {
-        if (!$this->_tablelist)
-        {
+        if (!$this->_tablelist) {
             $rs = $this->_pdo->query('show table status');
             $res = $rs->fetchAll(PDO::FETCH_ASSOC);
-            foreach ($res as $r)
-            {
+            foreach ($res as $r) {
                 $this->_tablelist[] = $r['Name'];
             }
         }
@@ -137,8 +106,7 @@ class Backup
     public function setbackdir($dir)
     {
         $this->_backdir = $dir;
-        if (!is_dir($dir))
-        {
+        if (!is_dir($dir)) {
             mkdir($dir, 0777);
         }
         return $this;
@@ -157,8 +125,7 @@ class Backup
     public function setfilename($filename)
     {
         $this->_filename = $filename;
-        if (!is_file($this->_backdir . '/' . $this->_filename))
-        {
+        if (!is_file($this->_backdir . '/' . $this->_filename)) {
             fopen($this->_backdir . '/' . $this->_filename, "x+");
         }
         // return $this;
@@ -170,12 +137,10 @@ class Backup
      */
     public function getfilename()
     {
-        if (!$this->_filename)
-        {
+        if (!$this->_filename) {
             $this->_filename = isset($this->_tablelist[$this->_nowtableidx]) ? $this->_tablelist[$this->_nowtableidx] . '#0.sql' : '';
         }
-        if (!is_file($this->_backdir . '/' . $this->_filename))
-        {
+        if (!is_file($this->_backdir . '/' . $this->_filename)) {
             fopen($this->_backdir . '/' . $this->_filename, "x+");
         }
         return $this->_filename;
@@ -189,13 +154,11 @@ class Backup
         $nexttable = $nowtable = '';
         $nexttableidx = $nowtableidx = $this->_nowtableidx;
         $nextstorefile = $nowstorefile = '';
-        if (isset($tablelist[$this->_nowtableidx]))
-        {
+        if (isset($tablelist[$this->_nowtableidx])) {
             $nexttable = $nowtable = $tablelist[$this->_nowtableidx];
             $sqlstr = '';
 
-            if ($this->_nowtableexeccount == 0)
-            {
+            if ($this->_nowtableexeccount == 0) {
                 //Drop 建表
                 $sqlstr .= 'DROP TABLE IF EXISTS `' . $nowtable . '`;' . PHP_EOL;
                 $rs = $this->_pdo->query('SHOW CREATE TABLE `' . $nowtable . '`');
@@ -203,29 +166,24 @@ class Backup
                 $sqlstr .= $res[0][1] . ';' . PHP_EOL;
                 file_put_contents($this->_backdir . DIRECTORY_SEPARATOR . $this->getfilename(), file_get_contents($this->_backdir . DIRECTORY_SEPARATOR . $this->getfilename()) . $sqlstr);
             }
-            if ($this->_nowtableexeccount == 0)
-            {
+            if ($this->_nowtableexeccount == 0) {
                 $this->gettabletotal($nowtable); //当前表的记录数
             }
-            if ($this->_nowtableexeccount < $this->_nowtabletotal)
-            {
+            if ($this->_nowtableexeccount < $this->_nowtabletotal) {
                 //建记录SQL语句
                 $this->_singleinsertrecord($nowtable, $this->_nowtableexeccount);
             }
             //计算百分比
-            $totalpercentage = ($this->_nowtableidx ) / count($tablelist) * 100;
-            if ($this->_nowtabletotal != 0)
-            {
+            $totalpercentage = ($this->_nowtableidx) / count($tablelist) * 100;
+            if ($this->_nowtabletotal != 0) {
                 $tablepercentage = $this->_nowtableexeccount / $this->_nowtabletotal * 100;
             }
             $nextstorefile = $nowstorefile = $this->getfilename();
-            if ($tablepercentage >= 100)
-            {
+            if ($tablepercentage >= 100) {
                 $this->_nowtableidx = $this->_nowtableidx + 1;
                 $nexttableidx = $this->_nowtableidx;
                 $this->_nowtableexeccount = 0;
-                if (isset($tablelist[$this->_nowtableidx]))
-                {
+                if (isset($tablelist[$this->_nowtableidx])) {
                     $nexttable = $this->_nowtableidx;
                     $nextstorefile = $tablelist[$this->_nowtableidx] . '#0.sql';
                     $this->setfilename($nextstorefile);
@@ -248,28 +206,23 @@ class Backup
 
     public function ajaxbackup()
     {
-        if (isset($_SESSION['ajaxparam']))
-        {
+        if (isset($_SESSION['ajaxparam'])) {
             $ajaxparam = $_SESSION['ajaxparam'];
             $this->_nowtableidx = $ajaxparam['nexttableidx'];
             $this->setfilename($ajaxparam['nextstorefile']);
-            if ($ajaxparam['tablepercentage'] >= 100)
-            {
+            if ($ajaxparam['tablepercentage'] >= 100) {
                 $this->_nowtableexeccount = 0;
                 $this->_nowtabletotal = 0;
-            } else
-            {
+            } else {
                 $this->_nowtableexeccount = $ajaxparam['nowtableexeccoun'];
                 $this->_nowtabletotal = $ajaxparam['nowtabletotal'];
             }
         }
         $result = $this->backup();
 
-        if ($result['totalpercentage'] >= 100)
-        {
+        if ($result['totalpercentage'] >= 100) {
             unset($_SESSION['ajaxparam']);
-        } else
-        {
+        } else {
             $_SESSION['ajaxparam'] = $result;
         }
         return $result;
@@ -289,12 +242,10 @@ class Backup
         $valueres = $valuers->fetchAll(PDO::FETCH_NUM);
         $insertsqlv = '';
         $insertsql = 'insert into `' . $tablename . '` VALUES ';
-        foreach ($valueres as $v)
-        {
+        foreach ($valueres as $v) {
             $insertsqlv .= ' ( ';
 
-            foreach ($v as $_v)
-            {
+            foreach ($v as $_v) {
                 $insertsqlv .= "'" . $_v . "',";
             }
             $insertsqlv = rtrim($insertsqlv, ',');
@@ -314,11 +265,9 @@ class Backup
     {
         clearstatcache();
         $b = filesize($this->_backdir . '/' . $this->getfilename()) < $this->_volsize * 1024 * 1024 ? true : false;
-        if ($b === false)
-        {
+        if ($b === false) {
             $filearr = explode('#', $this->getfilename());
-            if (count($filearr) == 2)
-            {
+            if (count($filearr) == 2) {
                 $fileext = explode('.', $filearr[1]); //.sql
                 $filename = $filearr[0] . '#' . ($fileext[0] + 1) . '.sql';
 
@@ -326,5 +275,4 @@ class Backup
             }
         }
     }
-
 }
