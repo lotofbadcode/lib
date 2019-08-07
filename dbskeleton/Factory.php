@@ -3,6 +3,7 @@
 namespace lotofbadcode\phpextend\dbskeleton;
 
 use lotofbadcode\phpextend\dbskeleton\mysql\Skeleton as MysqlSkeleton;
+use PDO;
 
 class Factory
 {
@@ -15,6 +16,7 @@ class Factory
             switch ($scheme) {
                 case 'mysql':
                     $pdo =  new PDO($scheme . ':host=' . $server . ';dbname=' . $dbname, $username, $password, [PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES'" . $code . "';"]);
+                    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
                     self::$instance[$args] = new MysqlSkeleton($pdo);
             }
         }

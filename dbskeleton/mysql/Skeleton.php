@@ -5,6 +5,7 @@ namespace lotofbadcode\phpextend\dbskeleton\mysql;
 use PDO;
 use Exception;
 use lotofbadcode\phpextend\dbskeleton\ISkeleton;
+use PDOException;
 
 class Skeleton implements ISkeleton
 {
@@ -37,7 +38,7 @@ class Skeleton implements ISkeleton
             $sql = "CREATE TABLE `" . $tableModel->tablename . "` " . $columnssql . "  ENGINE=" . $tableModel->engine . " DEFAULT CHARSET=" . $tableModel->charset . " ROW_FORMAT=COMPACT COMMENT='" . $tableModel->comment . "';";
             $stmt = $this->_connection->prepare($sql);
             $stmt->execute();
-        } catch (Exception $ex) {
+        } catch (PDOException $ex) {
             throw new Exception($ex->getMessage());
         }
     }
@@ -51,7 +52,7 @@ class Skeleton implements ISkeleton
             $sql = 'ALTER TABLE ' . $oldtableModel->tablename . ' RENAME ' . $newtableModel->tablename;
             $stmt = $this->_connection->prepare($sql);
             $stmt->execute();
-        } catch (Exception $ex) {
+        } catch (PDOException $ex) {
             throw new Exception($ex->getMessage());
         }
     }
@@ -65,7 +66,7 @@ class Skeleton implements ISkeleton
             $sql = 'DROP TABLE ' . $tableModel->tablename . ';';
             $stmt = $this->_connection->prepare($sql);
             $stmt->execute();
-        } catch (Exception $ex) {
+        } catch (PDOException $ex) {
             throw new Exception($ex->getMessage());
         }
     }
@@ -80,7 +81,7 @@ class Skeleton implements ISkeleton
             $sql = 'alter table ' . $tableModel->tablename . ' add ' . $columnModel->Generate();
             $stmt = $this->_connection->prepare($sql);
             $stmt->execute();
-        } catch (Exception $ex) {
+        } catch (PDOException $ex) {
             throw new Exception($ex->getMessage());
         }
     }
@@ -99,7 +100,7 @@ class Skeleton implements ISkeleton
             }
             $stmt = $this->_connection->prepare($sql);
             $stmt->execute();
-        } catch (Exception $ex) {
+        } catch (PDOException $ex) {
             throw new Exception($ex->getMessage());
         }
     }

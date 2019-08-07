@@ -121,9 +121,9 @@ class ColumnModel
         if ($this->defaultval != '') { //是否有默认值
             $columnsql .= ' DEFAULT  ' . $this->defaultval . ' ';
         }
-        $columnsql .= "COMMENT '" . $this->comment . "', ";
+        $columnsql .= "COMMENT '" . $this->comment . "' ";
         if ($this->ispk) {
-            $columnsql .= ' PRIMARY KEY (`' . $this->name . '`) ';
+            $columnsql .= ' , PRIMARY KEY (`' . $this->name . '`) ';
         }
         return $columnsql;
     }

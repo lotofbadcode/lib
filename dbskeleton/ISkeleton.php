@@ -2,6 +2,9 @@
 
 namespace lotofbadcode\phpextend\dbskeleton;
 
+use lotofbadcode\phpextend\dbskeleton\mysql\TableModel;
+use lotofbadcode\phpextend\dbskeleton\mysql\ColumnModel;
+
 interface ISkeleton
 {
     /**
@@ -9,7 +12,7 @@ interface ISkeleton
      * @param $tableModel TableModel
      * @param $columnModels
      */
-    public function createTable($tableModel,  array $columnModels);
+    public function createTable(TableModel $tableModel,  array $columnModels);
 
     /**
      * 修改表
