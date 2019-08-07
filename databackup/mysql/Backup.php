@@ -4,12 +4,13 @@ namespace lotofbadcode\phpextend\databackup\mysql;
 
 use PDO;
 use Exception;
+use lotofbadcode\phpextend\databackup\IBackup;
 
 if (!session_id()) {
     session_start();
 }
 
-class Backup
+class Backup implements IBackup
 {
 
     /**

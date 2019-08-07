@@ -2,9 +2,9 @@
 
 namespace lotofbadcode\phpextend\databackup;
 
-use lotofbadcode\phpextend\databackup\mysql\Backup;
+use lotofbadcode\phpextend\databackup\mysql\Recovery;
 
-class BackupFactory
+class RecoveryFactory
 {
     private static  $instance = null;
 
@@ -15,7 +15,7 @@ class BackupFactory
             switch ($scheme) {
                 case 'mysql':
                     $pdo =  new PDO($scheme . ':host=' . $server . ';dbname=' . $dbname, $username, $password, [PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES'" . $code . "';"]);
-                    self::$instance[$args] = new Backup($pdo);
+                    self::$instance[$args] = new Recovery($pdo);
             }
         }
         return self::$instance[$args];
