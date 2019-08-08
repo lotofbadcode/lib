@@ -3,6 +3,7 @@
 namespace lotofbadcode\phpextend\databackup;
 
 use lotofbadcode\phpextend\databackup\mysql\Recovery;
+use PDO;
 
 class RecoveryFactory
 {

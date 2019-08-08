@@ -3,7 +3,7 @@
 namespace lotofbadcode\phpextend\databackup;
 
 use lotofbadcode\phpextend\databackup\mysql\Backup;
-
+use PDO;
 class BackupFactory
 {
     private static  $instance = null;
