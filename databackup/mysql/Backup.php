@@ -32,13 +32,12 @@ class Backup implements IBackup
     private $_tablelist = [];
 
     /**
-     * 当前执行表的在$_tablelist中的键值
-     * @var int 
+     * 当前备份表的索引 
      */
     private $_nowtableidx = 0;
 
     /**
-     * 当前表已执行条数
+     * 当前表已备份条数
      * @var int 
      */
     private $_nowtableexeccount = 0;
@@ -48,6 +47,21 @@ class Backup implements IBackup
      * @var int 
      */
     private $_nowtabletotal = 0;
+
+    /**
+     * 下一个备份的表在$_tablelist中的键值
+     */
+    private $_nexttableidx = 0;
+
+    /**
+     * 下一个备份表已备份的条数
+     */
+    private $_nexttableexeccount = 0;
+
+    /**
+     * 下一个备份表的总条数
+     */
+    private $_nexttabletotal = 0;
 
     /**
      * PDO对象
@@ -104,8 +118,14 @@ class Backup implements IBackup
         return $this->_tablelist;
     }
 
+    /**
+     * 设置备份目录
+     */
     public function setbackdir($dir)
     {
+        if (isset($_SESSION['ajaxparam']) && $this->_backdir) {
+            return $this;
+        }
         $this->_backdir = $dir;
         if (!is_dir($dir)) {
             mkdir($dir, 0777);
@@ -125,6 +145,7 @@ class Backup implements IBackup
      */
     public function setfilename($filename)
     {
+
         $this->_filename = $filename;
         if (!is_file($this->_backdir . '/' . $this->_filename)) {
             fopen($this->_backdir . '/' . $this->_filename, "x+");
@@ -147,75 +168,121 @@ class Backup implements IBackup
         return $this->_filename;
     }
 
+    /**
+     * 备份
+     * 
+     * 正在备份的表
+     * 正在备份的表的索引
+     * 正在备份的表已备份的记录数
+     * 正在备份的表总记录数
+     * 将要备份的表
+     * 将要备份表的索引
+     * 将要备份表已备份的记录数
+     * 将要备份表的总记录数
+     */
     public function backup()
     {
-        $totalpercentage = 100;
-        $tablepercentage = 100;
-        $tablelist = $this->gettablelist();
-        $nexttable = $nowtable = '';
-        $nexttableidx = $nowtableidx = $this->_nowtableidx;
-        $nextstorefile = $nowstorefile = '';
-        if (isset($tablelist[$this->_nowtableidx])) {
-            $nexttable = $nowtable = $tablelist[$this->_nowtableidx];
-            $sqlstr = '';
+        $totalpercentage = 100; //默认总百分比 0%
+        $tablepercentage = 100; //默认单表百分比 0%
+        $tablelist = $this->gettablelist(); //所有的表列表
 
-            if ($this->_nowtableexeccount == 0) {
+        $nexttable = $nowtable = '';
+
+        $nowtableidx = $this->_nowtableidx; //当前正在备份的表索引
+
+        $nexttableidx = $this->_nexttableidx; //下一个备份表的索引
+
+        $nextstorefile = $nowstorefile = ''; //存储的文件名
+
+        $this->_nowtableidx = $this->_nexttableidx; //更新正在备份表的索引
+        $this->_nowtableexeccount = $this->_nexttableexeccount; //已备份的记录数
+
+        //备份表开始 默认第一个
+        if (isset($tablelist[$this->_nowtableidx])) {
+
+            $nowtable = $tablelist[$this->_nowtableidx]; //当前正在备份的表
+
+            $sqlstr = '';
+            if ($this->_nowtableexeccount == 0) { //将要执行表已备份的sql记录数
                 //Drop 建表
                 $sqlstr .= 'DROP TABLE IF EXISTS `' . $nowtable . '`;' . PHP_EOL;
                 $rs = $this->_pdo->query('SHOW CREATE TABLE `' . $nowtable . '`');
                 $res = $rs->fetchAll();
                 $sqlstr .= $res[0][1] . ';' . PHP_EOL;
                 file_put_contents($this->_backdir . DIRECTORY_SEPARATOR . $this->getfilename(), file_get_contents($this->_backdir . DIRECTORY_SEPARATOR . $this->getfilename()) . $sqlstr);
+
+                $this->gettabletotal($nowtable); //当前备份表总条数
             }
-            if ($this->_nowtableexeccount == 0) {
-                $this->gettabletotal($nowtable); //当前表的记录数
-            }
+
             if ($this->_nowtableexeccount < $this->_nowtabletotal) {
-                //建记录SQL语句
+                //建记录SQL语句 并设置已经备份的条数
                 $this->_singleinsertrecord($nowtable, $this->_nowtableexeccount);
             }
-            //计算百分比
-            $totalpercentage = ($this->_nowtableidx) / count($tablelist) * 100;
+
+            //计算单表百分比
             if ($this->_nowtabletotal != 0) {
                 $tablepercentage = $this->_nowtableexeccount / $this->_nowtabletotal * 100;
             }
+
+            //获取文件名
             $nextstorefile = $nowstorefile = $this->getfilename();
+
+            //当前表完成度 100%
             if ($tablepercentage >= 100) {
-                $this->_nowtableidx = $this->_nowtableidx + 1;
-                $nexttableidx = $this->_nowtableidx;
+
+                $this->_nexttableidx=$this->_nowtableidx+1;
+
+                //重置表执行数量
                 $this->_nowtableexeccount = 0;
-                if (isset($tablelist[$this->_nowtableidx])) {
-                    $nexttable = $this->_nowtableidx;
-                    $nextstorefile = $tablelist[$this->_nowtableidx] . '#0.sql';
+                $this->_nowtabletotal = 0;
+
+                //计算总进度百分比
+                $totalpercentage = ($nowtableidx + 1) / count($tablelist) * 100;
+
+                //下一个执行表的索引
+                $nexttableidx = $this->_willtableidx = $nowtableidx + 1;
+
+                if (isset($tablelist[$nexttableidx])) {
+
+                    //下一个执行的表
+                    $nexttable = $tablelist[$nexttableidx];
+
+                    //下一个要存储的文件名
+                    $nextstorefile = $tablelist[$this->_willtableidx] . '#0.sql';
+
+                    //设置文件名
                     $this->setfilename($nextstorefile);
                 }
             }
         }
+
         return [
             'nowtable' => $nowtable, //当前正在备份的表
             'nowtableidx' => $nowtableidx, //当前正在备份表的索引
             'nowstorefile' => $nowstorefile, //当前备份存储的文件名
-            'nowtableexeccoun' => $this->_nowtableexeccount, //当前表执行条数
+            'nowtableexeccount' => $this->_nowtableexeccount, //当前表执行条数
             'nowtabletotal' => $this->_nowtabletotal, //当前表执行总条数
             'nexttable' => $nexttable, //下一个要备份的表
             'nexttableidx' => $nexttableidx, //下一个要备份表的索引
             'nextstorefile' => $nextstorefile, //下一个要存储的文件名
             'totalpercentage' => (int) $totalpercentage, //总百分比
             'tablepercentage' => (int) $tablepercentage, //当前表百分比
+            'willtableidx' => $this->_willtableidx, //即将备份的表
         ];
     }
 
     public function ajaxbackup()
     {
+
         if (isset($_SESSION['ajaxparam'])) {
             $ajaxparam = $_SESSION['ajaxparam'];
-            $this->_nowtableidx = $ajaxparam['nexttableidx'];
+            $this->_willtableidx = $ajaxparam['willtableidx'];
             $this->setfilename($ajaxparam['nextstorefile']);
             if ($ajaxparam['tablepercentage'] >= 100) {
                 $this->_nowtableexeccount = 0;
                 $this->_nowtabletotal = 0;
             } else {
-                $this->_nowtableexeccount = $ajaxparam['nowtableexeccoun'];
+                $this->_nowtableexeccount = $ajaxparam['nowtableexeccount'];
                 $this->_nowtabletotal = $ajaxparam['nowtabletotal'];
             }
         }
@@ -224,11 +291,14 @@ class Backup implements IBackup
         if ($result['totalpercentage'] >= 100) {
             unset($_SESSION['ajaxparam']);
         } else {
+
             $_SESSION['ajaxparam'] = $result;
         }
+        //var_dump($_SESSION['ajaxparam']);
         return $result;
     }
 
+    //获取表中总条数
     public function gettabletotal($table)
     {
         $value = $this->_pdo->query('select count(*) from ' . $table);
