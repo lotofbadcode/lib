@@ -6,10 +6,6 @@ use PDO;
 use Exception;
 use lotofbadcode\phpextend\databackup\IBackup;
 
-if (!session_id()) {
-    session_start();
-}
-
 class Backup implements IBackup
 {
 
@@ -49,19 +45,9 @@ class Backup implements IBackup
     private $_nowtabletotal = 0;
 
     /**
-     * 下一个备份的表在$_tablelist中的键值
+     * 当前表备份百分比
      */
-    private $_nexttableidx = 0;
-
-    /**
-     * 下一个备份表已备份的条数
-     */
-    private $_nexttableexeccount = 0;
-
-    /**
-     * 下一个备份表的总条数
-     */
-    private $_nexttabletotal = 0;
+    private $_nowtablepercentage = 0;
 
     /**
      * PDO对象
@@ -175,10 +161,8 @@ class Backup implements IBackup
      * 正在备份的表的索引
      * 正在备份的表已备份的记录数
      * 正在备份的表总记录数
-     * 将要备份的表
-     * 将要备份表的索引
-     * 将要备份表已备份的记录数
-     * 将要备份表的总记录数
+     * 当前备份表百分比
+     * 总百分比
      */
     public function backup()
     {
@@ -186,16 +170,14 @@ class Backup implements IBackup
         $tablepercentage = 100; //默认单表百分比 0%
         $tablelist = $this->gettablelist(); //所有的表列表
 
-        $nexttable = $nowtable = '';
+        $nowtable = '';
 
-        $nowtableidx = $this->_nowtableidx; //当前正在备份的表索引
-
-        $nexttableidx = $this->_nexttableidx; //下一个备份表的索引
-
-        $nextstorefile = $nowstorefile = ''; //存储的文件名
-
-        $this->_nowtableidx = $this->_nexttableidx; //更新正在备份表的索引
-        $this->_nowtableexeccount = $this->_nexttableexeccount; //已备份的记录数
+        //上一次备份的表完成100% 将备份下一个表
+        if ($this->_nowtablepercentage >= 100) {
+            $this->_nowtableidx = $this->_nowtableidx + 1;
+            $this->_nowtableexeccount = $this->_nowtabletotal = 0;
+            $this->setfilename($tablelist[$this->_nowtableidx] . '#0.sql');
+        }
 
         //备份表开始 默认第一个
         if (isset($tablelist[$this->_nowtableidx])) {
@@ -221,53 +203,23 @@ class Backup implements IBackup
 
             //计算单表百分比
             if ($this->_nowtabletotal != 0) {
-                $tablepercentage = $this->_nowtableexeccount / $this->_nowtabletotal * 100;
+                $this->_nowtablepercentage = $this->_nowtableexeccount / $this->_nowtabletotal * 100;
             }
 
-            //获取文件名
-            $nextstorefile = $nowstorefile = $this->getfilename();
-
-            //当前表完成度 100%
-            if ($tablepercentage >= 100) {
-
-                $this->_nexttableidx=$this->_nowtableidx+1;
-
-                //重置表执行数量
-                $this->_nowtableexeccount = 0;
-                $this->_nowtabletotal = 0;
-
-                //计算总进度百分比
-                $totalpercentage = ($nowtableidx + 1) / count($tablelist) * 100;
-
-                //下一个执行表的索引
-                $nexttableidx = $this->_willtableidx = $nowtableidx + 1;
-
-                if (isset($tablelist[$nexttableidx])) {
-
-                    //下一个执行的表
-                    $nexttable = $tablelist[$nexttableidx];
-
-                    //下一个要存储的文件名
-                    $nextstorefile = $tablelist[$this->_willtableidx] . '#0.sql';
-
-                    //设置文件名
-                    $this->setfilename($nextstorefile);
-                }
+            if ($this->_nowtablepercentage == 100) {
+                $totalpercentage = ($this->_nowtableidx + 1) / count($tablelist) * 100;
+            } else {
+                $totalpercentage = ($this->_nowtableidx) / count($tablelist) * 100;
             }
         }
 
         return [
             'nowtable' => $nowtable, //当前正在备份的表
-            'nowtableidx' => $nowtableidx, //当前正在备份表的索引
-            'nowstorefile' => $nowstorefile, //当前备份存储的文件名
-            'nowtableexeccount' => $this->_nowtableexeccount, //当前表执行条数
-            'nowtabletotal' => $this->_nowtabletotal, //当前表执行总条数
-            'nexttable' => $nexttable, //下一个要备份的表
-            'nexttableidx' => $nexttableidx, //下一个要备份表的索引
-            'nextstorefile' => $nextstorefile, //下一个要存储的文件名
+            'nowtableidx' => $this->_nowtableidx, //当前正在备份表的索引
+            'nowtableexeccount' => $this->_nowtableexeccount, //当前表已备份条数
+            'nowtabletotal' => $this->_nowtabletotal, //当前表总条数
             'totalpercentage' => (int) $totalpercentage, //总百分比
             'tablepercentage' => (int) $tablepercentage, //当前表百分比
-            'willtableidx' => $this->_willtableidx, //即将备份的表
         ];
     }
 
