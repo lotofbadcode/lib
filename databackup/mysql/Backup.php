@@ -47,7 +47,7 @@ class Backup implements IBackup
     /**
      * 当前表备份百分比
      */
-    private $_nowtablepercentage = 0;
+    private $_nowtablepercentage = 100;
 
     /**
      * PDO对象
@@ -66,6 +66,7 @@ class Backup implements IBackup
      * @var type 
      */
     private $_totallimit = 200;
+
 
     /**
      * 
@@ -109,7 +110,7 @@ class Backup implements IBackup
      */
     public function setbackdir($dir)
     {
-        if (isset($_SESSION['ajaxparam']) && $this->_backdir) {
+        if ($this->_backdir) {
             return $this;
         }
         $this->_backdir = $dir;
@@ -167,7 +168,6 @@ class Backup implements IBackup
     public function backup()
     {
         $totalpercentage = 100; //默认总百分比 0%
-        $tablepercentage = 100; //默认单表百分比 0%
         $tablelist = $this->gettablelist(); //所有的表列表
 
         $nowtable = '';
@@ -219,34 +219,30 @@ class Backup implements IBackup
             'nowtableexeccount' => $this->_nowtableexeccount, //当前表已备份条数
             'nowtabletotal' => $this->_nowtabletotal, //当前表总条数
             'totalpercentage' => (int) $totalpercentage, //总百分比
-            'tablepercentage' => (int) $tablepercentage, //当前表百分比
+            'tablepercentage' => (int) $this->_nowtablepercentage, //当前表百分比
         ];
     }
 
-    public function ajaxbackup()
+    public function ajaxbackup($preresult = [])
     {
 
-        if (isset($_SESSION['ajaxparam'])) {
-            $ajaxparam = $_SESSION['ajaxparam'];
-            $this->_willtableidx = $ajaxparam['willtableidx'];
-            $this->setfilename($ajaxparam['nextstorefile']);
-            if ($ajaxparam['tablepercentage'] >= 100) {
-                $this->_nowtableexeccount = 0;
-                $this->_nowtabletotal = 0;
-            } else {
-                $this->_nowtableexeccount = $ajaxparam['nowtableexeccount'];
-                $this->_nowtabletotal = $ajaxparam['nowtabletotal'];
-            }
+        if ($this->getbackdir() == '' && !isset($preresult['backdir'])) {
+            throw new Exception('请先设置备份目录');
         }
+
+        if (isset($preresult['backdir'])) {
+            $this->setbackdir($preresult['backdir']);
+        }
+        unset($preresult['backdir']);
+        if ($preresult) {
+            $this->_nowtableidx = $preresult['nowtableidx'];
+            $this->_nowtableexeccount = $preresult['nowtableexeccount'];
+            $this->_nowtabletotal = $preresult['nowtabletotal'];
+            $this->_nowtablepercentage = (int) $preresult['tablepercentage'];
+        }
+
         $result = $this->backup();
-
-        if ($result['totalpercentage'] >= 100) {
-            unset($_SESSION['ajaxparam']);
-        } else {
-
-            $_SESSION['ajaxparam'] = $result;
-        }
-        //var_dump($_SESSION['ajaxparam']);
+        $result['backdir'] = $this->getbackdir();
         return $result;
     }
 
