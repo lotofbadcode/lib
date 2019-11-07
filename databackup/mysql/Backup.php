@@ -47,7 +47,7 @@ class Backup implements IBackup
     /**
      * 当前表备份百分比
      */
-    private $_nowtablepercentage = 100;
+    private $_nowtablepercentage = 0;
 
     /**
      * PDO对象
@@ -173,7 +173,10 @@ class Backup implements IBackup
         $nowtable = '';
 
         //上一次备份的表完成100% 将备份下一个表
-        if ($this->_nowtablepercentage >= 100) {
+        if (
+            $this->_nowtablepercentage >= 100 &&
+            isset($tablelist[$this->_nowtableidx+1])
+        ) { 
             $this->_nowtableidx = $this->_nowtableidx + 1;
             $this->_nowtableexeccount = $this->_nowtabletotal = 0;
             $this->setfilename($tablelist[$this->_nowtableidx] . '#0.sql');
@@ -201,9 +204,14 @@ class Backup implements IBackup
                 $this->_singleinsertrecord($nowtable, $this->_nowtableexeccount);
             }
 
+            
             //计算单表百分比
             if ($this->_nowtabletotal != 0) {
-                $this->_nowtablepercentage = $this->_nowtableexeccount / $this->_nowtabletotal * 100;
+                 $this->_nowtablepercentage = $this->_nowtableexeccount / $this->_nowtabletotal * 100;
+            }
+            else
+            {
+                $this->_nowtablepercentage=100;
             }
 
             if ($this->_nowtablepercentage == 100) {
@@ -212,7 +220,7 @@ class Backup implements IBackup
                 $totalpercentage = ($this->_nowtableidx) / count($tablelist) * 100;
             }
         }
-
+        
         return [
             'nowtable' => $nowtable, //当前正在备份的表
             'nowtableidx' => $this->_nowtableidx, //当前正在备份表的索引
