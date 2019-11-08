@@ -175,8 +175,8 @@ class Backup implements IBackup
         //上一次备份的表完成100% 将备份下一个表
         if (
             $this->_nowtablepercentage >= 100 &&
-            isset($tablelist[$this->_nowtableidx+1])
-        ) { 
+            isset($tablelist[$this->_nowtableidx + 1])
+        ) {
             $this->_nowtableidx = $this->_nowtableidx + 1;
             $this->_nowtableexeccount = $this->_nowtabletotal = 0;
             $this->setfilename($tablelist[$this->_nowtableidx] . '#0.sql');
@@ -204,14 +204,12 @@ class Backup implements IBackup
                 $this->_singleinsertrecord($nowtable, $this->_nowtableexeccount);
             }
 
-            
+
             //计算单表百分比
             if ($this->_nowtabletotal != 0) {
-                 $this->_nowtablepercentage = $this->_nowtableexeccount / $this->_nowtabletotal * 100;
-            }
-            else
-            {
-                $this->_nowtablepercentage=100;
+                $this->_nowtablepercentage = $this->_nowtableexeccount / $this->_nowtabletotal * 100;
+            } else {
+                $this->_nowtablepercentage = 100;
             }
 
             if ($this->_nowtablepercentage == 100) {
@@ -220,7 +218,7 @@ class Backup implements IBackup
                 $totalpercentage = ($this->_nowtableidx) / count($tablelist) * 100;
             }
         }
-        
+
         return [
             'nowtable' => $nowtable, //当前正在备份的表
             'nowtableidx' => $this->_nowtableidx, //当前正在备份表的索引
@@ -228,6 +226,7 @@ class Backup implements IBackup
             'nowtabletotal' => $this->_nowtabletotal, //当前表总条数
             'totalpercentage' => (int) $totalpercentage, //总百分比
             'tablepercentage' => (int) $this->_nowtablepercentage, //当前表百分比
+            'backfilename' => $this->getfilename(),
         ];
     }
 
@@ -247,6 +246,7 @@ class Backup implements IBackup
             $this->_nowtableexeccount = $preresult['nowtableexeccount'];
             $this->_nowtabletotal = $preresult['nowtabletotal'];
             $this->_nowtablepercentage = (int) $preresult['tablepercentage'];
+            $this->setfilename($preresult['backfilename']);
         }
 
         $result = $this->backup();
@@ -291,13 +291,14 @@ class Backup implements IBackup
     private function _checkfilesize()
     {
         clearstatcache();
+        
         $b = filesize($this->_backdir . '/' . $this->getfilename()) < $this->_volsize * 1024 * 1024 ? true : false;
         if ($b === false) {
             $filearr = explode('#', $this->getfilename());
             if (count($filearr) == 2) {
                 $fileext = explode('.', $filearr[1]); //.sql
                 $filename = $filearr[0] . '#' . ($fileext[0] + 1) . '.sql';
-
+                file_put_contents( '1.txt',file_get_contents('1.txt') . $filename);
                 $this->setfilename($filename);
             }
         }
