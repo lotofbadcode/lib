@@ -1,61 +1,10 @@
+**更新日志**
+v2.0(测试中)
+添加MYSQL数据库骨架（在线生成表，和字段）组件
+修复备份是特殊字符问题
+重新调整架构备份，恢复时去除SESSION 兼容前后端分离项目
+可采用以时间命名的备份文件夹
 
-**php 扩展类库 后面有好的类库会慢慢添加**
-
-**1.lotofbadcode\phpextend\databackup\mysql**
-
-是mysql数据库备份恢复的类库 **支持AJAX 支持进度条 支持文件分卷**
-
-demo地址： https://github.com/lotofbadcode/phpextenddemo
-
-使用方法：
-a.备份 
-
-  不使用AJAX
-  ```php (type)
-    <?php
-$backup = new \lotofbadcode\phpextend\databackup\mysql\Backup('127.0.0.1:3306', 'test', 'root', '');
-$backup->setbackdir($backupdir)
-        ->setvolsize(0.2);
-do
-{
-    $result = $backup->backup();
-} while ($result['totalpercentage'] < 100);
-  ```
-  
-  使用AJAX
-  
-  ```php (type)
-    $backup = new \lotofbadcode\phpextend\databackup\mysql\Backup('127.0.0.1:3306', 'test', 'root', '');
-$result = $backup->setbackdir($backupdir)
-        ->setvolsize(0.2) //分卷大小
-        ->ajaxbackup();
-  ```
-  ![](https://github.com/lotofbadcode/phpextenddemo/blob/master/mysqlbackup/backup.gif)
-   
-
-
-b.恢复 
-
-  不使用AJAX
-   ```php (type)
-    <?php
-
-$recovery = new \lotofbadcode\phpextend\databackup\mysql\Recovery('127.0.0.1:3306', 'test', 'root', '');
-$recovery->setSqlfiledir(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'backup');
-do
-{
-    $result = $recovery->recovery();
-
-} while ($result['totalpercentage'] < 100);
-
-  ```
-  使用AJAX
-   ```php (type)
-    <?php
-$recovery = new \lotofbadcode\phpextend\databackup\mysql\Recovery('127.0.0.1:3306', 'test', 'root', '');
-$result = $recovery->setSqlfiledir(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'backup')
-        ->ajaxrecovery();
-
-echo json_encode($result);
-  ```
-![](https://github.com/lotofbadcode/phpextenddemo/blob/master/mysqlbackup/recovery.gif)
+V1.0
+新增MYSQL数据库备份恢复组件
+[V1.0说明文档](READMEV1.0.MD "V1.0说明文档"). 
