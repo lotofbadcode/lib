@@ -273,7 +273,7 @@ class Backup implements IBackup
             $insertsqlv .= ' ( ';
 
             foreach ($v as $_v) {
-                $insertsqlv .= "'" . $_v . "',";
+                $insertsqlv .=  $this->_pdo->quote($_v)  . ",";
             }
             $insertsqlv = rtrim($insertsqlv, ',');
             $insertsqlv .= ' ),';
