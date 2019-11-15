@@ -6,9 +6,6 @@ use PDO;
 use Exception;
 use lotofbadcode\phpextend\databackup\IRecovery;
 
-if (!session_id()) {
-    session_start();
-}
 
 class Recovery implements IRecovery
 {
@@ -98,19 +95,14 @@ class Recovery implements IRecovery
         }
     }
 
-    public function ajaxrecovery()
+    public function ajaxrecovery($preresult = [])
     {
-        if (isset($_SESSION['ajaxparam'])) {
-            $ajaxparam = $_SESSION['ajaxparam'];
-            $this->_nowfileidx = $ajaxparam['nowfileidex'];
-            $this->_nextfileidx = $ajaxparam['nextfileidx'];
+        if($preresult)
+        {
+            $this->_nowfileidx = $preresult['nowfileidex'];
+            $this->_nextfileidx = $preresult['nextfileidx'];
         }
         $result = $this->recovery();
-        if ($result['totalpercentage'] >= 100) {
-            unset($_SESSION['ajaxparam']);
-        } else {
-            $_SESSION['ajaxparam'] = $result;
-        }
         return $result;
     }
 
