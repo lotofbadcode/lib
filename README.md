@@ -16,7 +16,7 @@ v2.0
 4.可采用以时间命名的备份文件夹
 
 
-[V2.0说明文档](https://github.com/lotofbadcode/phpextend/blob/master/READMEV2.0.md" V1.0说明文档"). 
+[V2.0说明文档](https://github.com/lotofbadcode/phpextend/blob/master/READMEV2.0.md" V2.0说明文档"). 
 
 
 V1.0
