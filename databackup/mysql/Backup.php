@@ -298,7 +298,7 @@ class Backup implements IBackup
             if (count($filearr) == 2) {
                 $fileext = explode('.', $filearr[1]); //.sql
                 $filename = $filearr[0] . '#' . ($fileext[0] + 1) . '.sql';
-                file_put_contents( '1.txt',file_get_contents('1.txt') . $filename);
+
                 $this->setfilename($filename);
             }
         }
