@@ -11,25 +11,27 @@ a.备份
 
   不使用AJAX
   ```php (type)
-    <?php
-use lotofbadcode\phpextend\databackup\mysql\Backup;
+   use phpspirit\databackup\BackupFactory;
 //自行判断文件夹
-$backupdir = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'backup';
-if (!is_dir($backupdir))
-{
+$backupdir = '';
+if (isset($_POST['backdir']) && $_POST['backdir'] != '') {
+    $backupdir = $_POST['backdir'];
+} else {
+    $backupdir = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'backup' . DIRECTORY_SEPARATOR . date('Ymdhis');
+}
+
+if (!is_dir($backupdir)) {
     mkdir($backupdir, 0777, true);
 }
-$backup = new Backup('127.0.0.1:3306', 'test', 'root', '');
-$backup->setbackdir($backupdir)
-        ->setvolsize(0.2);
-do
-{
+$backup = BackupFactory::instance('mysql', '127.0.0.1:3306', 'test', 'root', 'root');
+$backup->setbackdir($backupdir) //设置备份目录
+    ->setvolsize(0.2); //设置分卷大小
+do {
     $result = $backup->backup();
     echo str_repeat(' ', 1000); //这里会把浏览器缓存装满
-    ob_flush(); //把php缓存写入apahce缓存
-    flush(); //把apahce缓存写入浏览器缓存
-    if ($result['totalpercentage'] > 0)
-    {
+    ob_flush(); 
+    flush(); 
+    if ($result['totalpercentage'] > 0) {
         echo '完成' . $result['totalpercentage'] . '%<br />';
     }
 } while ($result['totalpercentage'] < 100);
@@ -38,7 +40,7 @@ do
   使用AJAX
   
   ```php (type)
-use lotofbadcode\phpextend\databackup\BackupFactory;
+use phpspirit\databackup\BackupFactory;
 //自行判断文件夹
 $backupdir = '';
 if (isset($_POST['backdir']) && $_POST['backdir'] != '') {
@@ -49,11 +51,11 @@ if (isset($_POST['backdir']) && $_POST['backdir'] != '') {
 if (!is_dir($backupdir)) {
     mkdir($backupdir, 0777, true);
 }
-//$backup = new Backup('127.0.0.1:3306', 'test', 'root', '');
-$backup = BackupFactory::instance('mysql', '127.0.0.1:3306', 'qjfsonar', 'root', 'root');
+$backup = BackupFactory::instance('mysql', '127.0.0.1:3306', 'test', 'root', 'root');
 $result = $backup->setbackdir($backupdir)
     ->setvolsize(0.2)
     ->ajaxbackup($_POST);
+
 echo json_encode($result);
   ```
  
@@ -63,24 +65,28 @@ b.恢复
 
   不使用AJAX
    ```php (type)
-    <?php
-
-use lotofbadcode\phpextend\databackup\RecoveryFactory;
-$recovery = RecoveryFactory::instance('mysql', '127.0.0.1:3306', 'qjfsonar', 'root', 'root');
-$recovery->setSqlfiledir(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'backup');
+    use phpspirit\databackup\RecoveryFactory;
+$recovery = RecoveryFactory::instance('mysql', '127.0.0.1:3306', 'test', 'root', 'root');
+$recovery->setSqlfiledir(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'backup'.DIRECTORY_SEPARATOR.'20191205010418');
 do
 {
     $result = $recovery->recovery();
-
+    echo str_repeat(' ', 1000); 
+    ob_flush(); 
+    flush(); 
+    if ($result['totalpercentage'] > 0)
+    {
+        echo '完成' . $result['totalpercentage'] . '%<br />';
+    }
 } while ($result['totalpercentage'] < 100);
 
   ```
   使用AJAX
    ```php (type)
     <?php
-use lotofbadcode\phpextend\databackup\RecoveryFactory;
-$recovery = RecoveryFactory::instance('mysql', '127.0.0.1:3306', 'qjfsonar', 'root', 'root');
-$result = $recovery->setSqlfiledir(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'backup'.DIRECTORY_SEPARATOR.'20191115105031')
+use phpspirit\databackup\RecoveryFactory;
+$recovery = RecoveryFactory::instance('mysql', '127.0.0.1:3306', 'test', 'root', 'root');
+$result = $recovery->setSqlfiledir(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'backup'.DIRECTORY_SEPARATOR.'20191205010418')
         ->ajaxrecovery($_POST);
 echo json_encode($result);
   ```
